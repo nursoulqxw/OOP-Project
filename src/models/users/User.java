@@ -31,9 +31,6 @@ public abstract class User implements Observer, Serializable {
         this.createdAt = LocalDateTime.now();
     }
 
-
-
-
     public boolean authenticate(String pwd) {
         return this.password != null && this.password.equals(pwd);
     }

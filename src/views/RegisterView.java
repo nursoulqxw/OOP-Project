@@ -1,5 +1,6 @@
 package views;
 
+import controllers.AuthController;
 import core.factory.StudentFactory;
 import core.factory.TeacherFactory;
 import data.Database;
@@ -57,6 +58,7 @@ public class RegisterView extends BaseView {
 
         User u = new StudentFactory().createUser(data);
         Database.getInstance().getUsers().put(u.getId(), u);
+        AuthController.login(email, (String) data.get("password"));
         System.out.println("Account created! Welcome, " + u.getFullName()
                 + " (id=" + u.getId() + ")");
         return u;
@@ -80,6 +82,7 @@ public class RegisterView extends BaseView {
 
         User u = new TeacherFactory().createUser(data);
         Database.getInstance().getUsers().put(u.getId(), u);
+        AuthController.login(email, (String) data.get("password"));
 
         if (u instanceof Teacher && ((Teacher) u).isProfessor()) {
             Database.getInstance().addResearcher(u.getId(), new TeacherResearcher(u));
