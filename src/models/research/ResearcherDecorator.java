@@ -84,6 +84,10 @@ public abstract class ResearcherDecorator implements Researcher, Serializable {
         }
     }
 
+    public void refreshHIndex() {
+        recomputeHIndex();
+    }
+
     /**
      - Standard h-index: largest h such that at least h papers
      - have at least h citations each.

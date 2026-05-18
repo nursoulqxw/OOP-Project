@@ -7,6 +7,7 @@ import data.Database;
 import models.academic.Course;
 import models.research.ResearchPaper;
 import models.research.Researcher;
+import models.research.ResearcherDecorator;
 import models.research.TeacherResearcher;
 import models.users.Student;
 import models.users.Teacher;
@@ -180,15 +181,17 @@ public class TeacherView extends BaseView {
             System.out.println("-- RESEARCH (h-index: " + r.getHIndex() + ") --");
             System.out.println("1) View my papers");
             System.out.println("2) Add paper");
+            System.out.println("3) Update paper citations");
             if (r instanceof TeacherResearcher) {
-                System.out.println("3) Apply for grant");
+                System.out.println("4) Apply for grant");
             }
             System.out.println("0) Back");
             String c = prompt("> ");
             switch (c) {
-                case "1": listPapers(r);               break;
-                case "2": addPaper(r, t.getFullName()); break;
-                case "3":
+                case "1": listPapers(r);                    break;
+                case "2": addPaper(r, t.getFullName());     break;
+                case "3": updateCitations(r);               break;
+                case "4":
                     if (r instanceof TeacherResearcher) {
                         String grant = prompt("Grant name: ");
                         ((TeacherResearcher) r).applyForGrant(grant);
@@ -225,6 +228,29 @@ public class TeacherView extends BaseView {
         r.addPaper(paper);
         Database.getInstance().getPapers().put(doi, paper);
         System.out.println("Paper added. h-index now: " + r.getHIndex());
+    }
+
+    private static void updateCitations(Researcher r) throws IOException {
+        List<ResearchPaper> papers = r.getPapers();
+        if (papers.isEmpty()) {
+            System.out.println("No papers to update.");
+            return;
+        }
+        for (int i = 0; i < papers.size(); i++) {
+            System.out.printf("%d) %s  [citations: %d]%n",
+                    i + 1, papers.get(i).getTitle(), papers.get(i).getCitations());
+        }
+        int idx = parseInt(prompt("Paper number: ")) - 1;
+        if (idx < 0 || idx >= papers.size()) {
+            System.out.println("Invalid selection.");
+            return;
+        }
+        int newCitations = parseInt(prompt("New citations count: "));
+        papers.get(idx).setCitations(newCitations);
+        if (r instanceof ResearcherDecorator) {
+            ((ResearcherDecorator) r).refreshHIndex();
+        }
+        System.out.println("Updated. h-index now: " + r.getHIndex());
     }
 
     private static void myProfile(Teacher t) {
