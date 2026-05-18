@@ -1,5 +1,7 @@
 package views;
 
+import controllers.AuthController;
+import controllers.UniversitySystem;
 import controllers.UserController;
 import core.builder.CourseBuilder;
 import core.factory.EmployeeFactory;
@@ -20,6 +22,8 @@ import models.users.Admin;
 import models.users.Teacher;
 import models.users.User;
 import models.academic.RecommendationLetter;
+import models.research.Researcher;
+import models.research.ResearcherDecorator;
 import models.research.TeacherResearcher;
 
 import java.io.IOException;
@@ -58,6 +62,10 @@ public class AdminView extends BaseView {
             System.out.println("7) Assign teacher to course");
             System.out.println("8) Publish news");
             System.out.println("9) View audit logs");
+            System.out.println("a) Top cited researcher of school");
+            System.out.println("b) Top cited researcher of year");
+            System.out.println("c) All research papers");
+            System.out.println("d) Change password");
             System.out.println("0) Logout");
             String choice = prompt("> ");
 
@@ -70,7 +78,11 @@ public class AdminView extends BaseView {
                 case "6": createCourse();    break;
                 case "7": assignTeacher();   break;
                 case "8": publishNews(admin); break;
-                case "9": logs();            break;
+                case "9": logs();                      break;
+                case "a": topResearcherBySchool();     break;
+                case "b": topResearcherByYear();       break;
+                case "c": allPapers();                 break;
+                case "d": changePassword();            break;
                 case "0": return;
                 default:  System.out.println("Unknown option.");
             }
@@ -252,6 +264,39 @@ public class AdminView extends BaseView {
         News n = new News(newsId, title, body, admin);
         NewsService.getInstance().publishNews(n);
         System.out.println("(Observer) News published; subscribers notified.");
+    }
+
+    // -------------------- analytics & password --------------------
+
+    private static void topResearcherBySchool() throws IOException {
+        String school = prompt("School/department name: ");
+        Researcher r = UniversitySystem.getInstance().getTopCitedResearcherOfSchool(school);
+        if (r == null) { System.out.println("No researchers found for: " + school); return; }
+        String name = r instanceof ResearcherDecorator
+                ? ((ResearcherDecorator) r).getWrappedUser().getFullName()
+                : r.toString();
+        System.out.printf("Top cited: %s (h-index: %d)%n", name, r.getHIndex());
+    }
+
+    private static void topResearcherByYear() throws IOException {
+        int year = parseIntOr(prompt("Year (e.g. 2024): "), 2024);
+        Researcher r = UniversitySystem.getInstance().getTopCitedResearcherOfYear(year);
+        if (r == null) { System.out.println("No researchers with papers in " + year); return; }
+        String name = r instanceof ResearcherDecorator
+                ? ((ResearcherDecorator) r).getWrappedUser().getFullName()
+                : r.toString();
+        System.out.printf("Top cited (%d): %s (h-index: %d)%n", year, name, r.getHIndex());
+    }
+
+    private static void allPapers() {
+        UniversitySystem.getInstance().printAllPapers((a, b) -> b.getCitations() - a.getCitations());
+    }
+
+    private static void changePassword() throws IOException {
+        String oldPwd = prompt("Current password: ");
+        String newPwd = prompt("New password: ");
+        boolean ok = AuthController.changePassword(oldPwd, newPwd);
+        System.out.println(ok ? "Password changed." : "Failed.");
     }
 
     // -------------------- helpers --------------------

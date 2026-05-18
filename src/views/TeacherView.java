@@ -1,6 +1,8 @@
 package views;
 
+import controllers.AuthController;
 import controllers.MarkController;
+import controllers.RequestController;
 import data.Database;
 import models.academic.Course;
 import models.research.ResearchPaper;
@@ -31,6 +33,9 @@ public class TeacherView extends BaseView {
             System.out.println("5) Generate mark report");
             System.out.println("6) Write recommendation");
             System.out.println("7) Research");
+            System.out.println("8) My profile");
+            System.out.println("9) Create request");
+            System.out.println("10) Change password");
             System.out.println("0) Logout");
             String choice = prompt("> ");
 
@@ -41,7 +46,10 @@ public class TeacherView extends BaseView {
                 case "4": takeAttendance(teacher);         break;
                 case "5": markReport(teacher);             break;
                 case "6": writeRecommendation(teacher);    break;
-                case "7": research(teacher);               break;
+                case "7":  research(teacher);          break;
+                case "8":  myProfile(teacher);         break;
+                case "9":  createRequest();            break;
+                case "10": changePassword();           break;
                 case "0": return;
                 default:  System.out.println("Unknown option.");
             }
@@ -217,6 +225,27 @@ public class TeacherView extends BaseView {
         r.addPaper(paper);
         Database.getInstance().getPapers().put(doi, paper);
         System.out.println("Paper added. h-index now: " + r.getHIndex());
+    }
+
+    private static void myProfile(Teacher t) {
+        System.out.println("Department : " + t.getDepartment());
+        System.out.printf ("Salary     : %.2f%n", t.getSalary());
+        System.out.println("Hire date  : " + t.getHireDate());
+        System.out.printf ("Rating     : %.2f / 5.0 (%d ratings)%n", t.getRating(), t.getRatingCount());
+    }
+
+    private static void createRequest() throws IOException {
+        String type = prompt("Request type (e.g. LEAVE/SALARY/OTHER): ");
+        String desc = prompt("Description: ");
+        var r = RequestController.createRequest(type, desc);
+        System.out.println(r != null ? "Request submitted: " + r.getRequestId() : "Failed.");
+    }
+
+    private static void changePassword() throws IOException {
+        String oldPwd = prompt("Current password: ");
+        String newPwd = prompt("New password: ");
+        boolean ok = AuthController.changePassword(oldPwd, newPwd);
+        System.out.println(ok ? "Password changed." : "Failed.");
     }
 
     private static double parseDouble(String s) {

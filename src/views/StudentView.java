@@ -1,5 +1,6 @@
 package views;
 
+import controllers.AuthController;
 import controllers.CourseController;
 import controllers.EnrollmentController;
 import controllers.MarkController;
@@ -13,6 +14,8 @@ import models.research.ResearchPaper;
 import models.research.Researcher;
 import models.research.StudentResearcher;
 import models.users.Student;
+import models.users.Teacher;
+import models.users.User;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -37,6 +40,10 @@ public class StudentView extends BaseView {
             System.out.println("6) Subscribe to news");
             System.out.println("7) View my recommendation letters");
             System.out.println("8) Research");
+            System.out.println("9) View enrolled courses");
+            System.out.println("10) Rate a teacher");
+            System.out.println("11) Unsubscribe from news");
+            System.out.println("12) Change password");
             System.out.println("0) Logout");
             String choice = prompt("> ");
 
@@ -48,7 +55,11 @@ public class StudentView extends BaseView {
                 case "5": viewNews(); break;
                 case "6": NewsController.subscribe(); break;
                 case "7": viewRecommendations(student); break;
-                case "8": research(student); break;
+                case "8":  research(student); break;
+                case "9":  viewEnrolled(student); break;
+                case "10": rateTeacher(student); break;
+                case "11": NewsController.unsubscribe(); System.out.println("Unsubscribed."); break;
+                case "12": changePassword(); break;
                 case "0": return;
                 default:  System.out.println("Unknown option.");
             }
@@ -179,8 +190,43 @@ public class StudentView extends BaseView {
         System.out.println("Paper added. h-index now: " + r.getHIndex());
     }
 
+    private static void viewEnrolled(Student s) {
+        List<Course> courses = s.viewCourses();
+        if (courses.isEmpty()) {
+            System.out.println("You are not enrolled in any courses.");
+            return;
+        }
+        for (Course c : courses) {
+            System.out.println("  " + c);
+        }
+    }
+
+    private static void rateTeacher(Student s) throws IOException {
+        String tid = prompt("Teacher id: ");
+        User u = Database.getInstance().getUsers().get(tid);
+        if (!(u instanceof Teacher)) {
+            System.out.println("Not a teacher.");
+            return;
+        }
+        double rating = parseDouble(prompt("Rating (0-5): "));
+        s.rateTeacher((Teacher) u, rating);
+        System.out.println("Rated.");
+    }
+
+    private static void changePassword() throws IOException {
+        String oldPwd = prompt("Current password: ");
+        String newPwd = prompt("New password: ");
+        boolean ok = AuthController.changePassword(oldPwd, newPwd);
+        System.out.println(ok ? "Password changed." : "Failed.");
+    }
+
     private static int parseInt(String s) {
         try { return Integer.parseInt(s.trim()); }
+        catch (NumberFormatException e) { return 0; }
+    }
+
+    private static double parseDouble(String s) {
+        try { return Double.parseDouble(s.trim()); }
         catch (NumberFormatException e) { return 0; }
     }
 

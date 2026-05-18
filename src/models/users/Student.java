@@ -153,6 +153,7 @@ public class Student extends User implements Comparable<Student>, Reportable {
         return s.build(data);
     }
 
+
     public String getStudentId() {
         return studentId;
     }
@@ -168,6 +169,7 @@ public class Student extends User implements Comparable<Student>, Reportable {
     public double getGpa() {
         return gpa;
     }
+
 
     public List<Course> getEnrolledCourses() {
         return enrolledCourses;
