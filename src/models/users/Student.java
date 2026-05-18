@@ -90,6 +90,10 @@ public class Student extends User implements Comparable<Student>, Reportable {
         return new ArrayList<>(transcript.getMarks().values());
     }
 
+    public List<Course> viewCourses() {
+        return new ArrayList<>(enrolledCourses);
+    }
+
     public Transcript getTranscript() {
         return transcript;
     }
