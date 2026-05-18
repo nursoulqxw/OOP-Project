@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import models.enums.StudyYear;
 import models.enums.TeacherTitle;
 import models.users.Admin;
+import models.users.Student;
 import models.users.Teacher;
 import models.users.User;
 import models.academic.RecommendationLetter;
@@ -197,6 +198,10 @@ public class AdminView extends BaseView {
         System.out.println("Field to change:");
         System.out.println("  1) password");
         System.out.println("  2) phone");
+        if (u instanceof Student) {
+            System.out.println("  3) GPA");
+            System.out.println("  4) failed courses count");
+        }
         String which = prompt("> ");
 
         switch (which) {
@@ -207,6 +212,18 @@ public class AdminView extends BaseView {
             case "2":
                 String phone = prompt("New phone: ");
                 u.setPhone(phone);
+                break;
+            case "3":
+                if (u instanceof Student) {
+                    double gpa = parseDoubleOr(prompt("New GPA (0.0-4.0): "), 0.0);
+                    ((Student) u).setGpa(gpa);
+                }
+                break;
+            case "4":
+                if (u instanceof Student) {
+                    int count = parseIntOr(prompt("Failed courses count: "), 0);
+                    ((Student) u).setFailedCoursesCount(count);
+                }
                 break;
             default:
                 System.out.println("Unknown field."); return;

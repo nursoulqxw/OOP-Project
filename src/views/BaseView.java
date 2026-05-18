@@ -57,4 +57,12 @@ public abstract class BaseView {
             return fallback;
         }
     }
+
+    protected static double parseDoubleOr(String s, double fallback) {
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
 }

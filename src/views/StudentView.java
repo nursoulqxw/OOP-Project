@@ -13,6 +13,8 @@ import models.academic.RecommendationLetter;
 import models.research.ResearchPaper;
 import models.research.Researcher;
 import models.research.StudentResearcher;
+import models.enums.Major;
+import models.enums.StudyYear;
 import models.users.Student;
 import models.users.Teacher;
 import models.users.User;
@@ -44,6 +46,8 @@ public class StudentView extends BaseView {
             System.out.println("10) Rate a teacher");
             System.out.println("11) Unsubscribe from news");
             System.out.println("12) Change password");
+            System.out.println("13) My profile");
+            System.out.println("14) Update profile (major / year)");
             System.out.println("0) Logout");
             String choice = prompt("> ");
 
@@ -60,6 +64,8 @@ public class StudentView extends BaseView {
                 case "10": rateTeacher(student); break;
                 case "11": NewsController.unsubscribe(); System.out.println("Unsubscribed."); break;
                 case "12": changePassword(); break;
+                case "13": myProfile(student); break;
+                case "14": updateProfile(student); break;
                 case "0": return;
                 default:  System.out.println("Unknown option.");
             }
@@ -211,6 +217,52 @@ public class StudentView extends BaseView {
         double rating = parseDouble(prompt("Rating (0-5): "));
         s.rateTeacher((Teacher) u, rating);
         System.out.println("Rated.");
+    }
+
+    private static void myProfile(Student s) {
+        System.out.println("Student id    : " + s.getStudentId());
+        System.out.println("Major         : " + s.getMajor());
+        System.out.println("Year          : " + s.getYear());
+        System.out.printf ("GPA           : %.2f%n", s.getGpa());
+        System.out.println("Failed courses: " + s.getFailedCoursesCount());
+        var supervisor = s.getSupervisor();
+        if (supervisor != null) {
+            System.out.println("Supervisor    : h-index " + supervisor.getHIndex());
+        } else {
+            System.out.println("Supervisor    : not assigned");
+        }
+    }
+
+    private static void updateProfile(Student s) throws IOException {
+        System.out.println("1) Change major");
+        System.out.println("2) Change study year");
+        String choice = prompt("> ");
+        switch (choice) {
+            case "1":
+                System.out.println("Major options:");
+                Major[] majors = Major.values();
+                for (int i = 0; i < majors.length; i++)
+                    System.out.println("  " + (i + 1) + ") " + majors[i].name());
+                int mi = parseInt(prompt("> ")) - 1;
+                if (mi >= 0 && mi < majors.length) {
+                    s.setMajor(majors[mi]);
+                    System.out.println("Major updated to " + s.getMajor());
+                }
+                break;
+            case "2":
+                System.out.println("Year options:");
+                StudyYear[] years = StudyYear.values();
+                for (int i = 0; i < years.length; i++)
+                    System.out.println("  " + (i + 1) + ") " + years[i].name());
+                int yi = parseInt(prompt("> ")) - 1;
+                if (yi >= 0 && yi < years.length) {
+                    s.setYear(years[yi]);
+                    System.out.println("Year updated to " + s.getYear());
+                }
+                break;
+            default:
+                System.out.println("Unknown option.");
+        }
     }
 
     private static void changePassword() throws IOException {

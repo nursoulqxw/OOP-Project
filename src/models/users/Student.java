@@ -183,6 +183,7 @@ public class Student extends User implements Comparable<Student>, Reportable {
         return supervisor;
     }
 
+
     public void setMajor(Major major) {
         this.major = major;
     }
